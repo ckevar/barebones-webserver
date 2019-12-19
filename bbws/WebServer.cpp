@@ -20,11 +20,9 @@ void WebServer::onMessageReceived(int clientSocket, const char* msg, int length)
 	std::string content = "<h1>404 Not Found</h1>";
 	std::string htmlFile = "/index.html";
 	int errorCode = 404;
-	std::cout << parsed[0] << std::endl;
 
 	// If the GET request is valid, try and get the name
-	if (parsed.size() >= 3 && parsed[0] == "GET")
-	{
+	if (parsed.size() >= 3 && parsed[0] == "GET") {
 		htmlFile = parsed[1];
 
 		// If the file is just a slash, use index.html. This should really
@@ -35,7 +33,7 @@ void WebServer::onMessageReceived(int clientSocket, const char* msg, int length)
 	}
 
 	// Open the document in the local file system
-	std::ifstream f(".\\wwwroot" + htmlFile);
+	std::ifstream f("wwwroot" + htmlFile);
 
 	// Check if it opened and if it did, grab the entire contents
 	if (f.good())
