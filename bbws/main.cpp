@@ -8,7 +8,7 @@ int main(int argc, char const *argv[])
 	if (webServer.init() != 0)
 		return -1;
 
-	webServer.run();
+	if(webServer.run() < 0) return -1;
 
 	getchar();
 	// system("pause");
