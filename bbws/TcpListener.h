@@ -3,9 +3,7 @@
 
 #include <sys/socket.h>
 #include <poll.h>
-//#include <WS2tcpip.h>
 
-//#pragma comment (lib, "ws2_32.lib")
 #define MAX_CLIENTS 10
 
 class TcpListener
@@ -21,6 +19,9 @@ public:
 
 	// Run the listener
 	int run();
+
+	// Stop Listener 
+	void stop();
 
 protected:
 
@@ -47,12 +48,12 @@ protected:
 
 private:
 
-	const char*		m_ipAddress;		// IP Address server will run on
+	const char*		m_ipAddress;	// IP Address server will run on
 	int				m_port;			// Port # for the web service
 	int				m_socket;		// Internal FD for the listening socket
-	// fd_set			m_master;		// Master file descriptor set
 	struct pollfd	m_master[MAX_CLIENTS + 1];		// Master file descriptor set
-	int		available;
+	int				available;				// amount of available clients
+	bool 			running;		// switch to run and stop the server's while
 };
 
 #endif

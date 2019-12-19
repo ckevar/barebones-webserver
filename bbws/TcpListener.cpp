@@ -25,13 +25,13 @@ int TcpListener::init()
 		fprintf(stderr, "[ERROR:] at binding");
 		return -1;
 	}
-	// Tell Winsock the socket is for listening 
+	// Tell the socket is for listening 
 	if (listen(m_socket, SOMAXCONN) < 0) {
 		fprintf(stderr, "[ERROR:] at listen");
 		return -1;
 	} 
 
-	// Create the master file descriptor set and zero it
+	// Create the master file descriptor set and assing -1 file descriptor, and no event
 	for (int i = 0; i < (MAX_CLIENTS + 1); ++i) {
 		m_master[i].fd = -1;
 		m_master[i].events = 0;
@@ -41,33 +41,20 @@ int TcpListener::init()
 	// It's important that this socket is added for our server or else we won't 'hear' incoming
 	// connections 
 	available = MAX_CLIENTS;
-	m_master[0].fd = m_socket;
+	m_master[0].fd = m_socket; // the index zero is our listening socket
 
+	running = true;	// Enable server to run
 	return 0;
 }
 
 int TcpListener::run() {
 	// this will be changed by the \quit command (see below, bonus not in video!)
-	bool running = true;
 
 	while (running) {
 		std::cout << "[DEBUG:] Available seats " << available << " out of " << MAX_CLIENTS << std::endl;
-		// Make a copy of the master file descriptor set, this is SUPER important because
-		// the call to select() is _DESTRUCTIVE_. The copy only contains the sockets that
-		// are accepting inbound connection requests OR messages. 
-
-		// E.g. You have a server and it's master file descriptor set contains 5 items;
-		// the listening socket and four clients. When you pass this set into select(), 
-		// only the sockets that are interacting with the server are returned. Let's say
-		// only one client is sending a message at that time. The contents of 'copy' will
-		// be one socket. You will have LOST all the other sockets.
-
-		// SO MAKE A COPY OF THE MASTER LIST TO PASS INTO select() !!!
-
+		m_master[0].events = (available > 0) ? POLLIN : 0;	// Updating the event based on the availability
 		// See who's talking to us
-		// int socketCount = select(0, &copy, nullptr, nullptr, nullptr);
-		m_master[0].events = (available > 0) ? POLLIN : 0;
-		int socketCount = poll(m_master, MAX_CLIENTS, -1);
+		int socketCount = poll(m_master, MAX_CLIENTS, -1);	// Wait for connections
 		// Is it an inbound communication?
 		if (m_master[0].revents == POLLIN) {
 			// Accept a new connection
@@ -78,16 +65,14 @@ int TcpListener::run() {
 
 			onClientConnected(client);
 			socketCount--;
-			std::cout << "I was asked" << std::endl;
 		}	
 
-		// Loop through all the current connections / potential connect
-		// It's an inbound message
 		int i = 1;
+		// It's an inbound message
+		// Loop through all the current connections / potential connect
 		while (socketCount > 0) {
 
 			if(m_master[i].revents == POLLIN) {
-				// std::cout << "Client wants something" << std::endl;
 				char buf[4096];
 				memset(buf, 0, 4096);
 				int sock = m_master[i].fd;
@@ -99,7 +84,6 @@ int TcpListener::run() {
 					onClientDisconnected(sock);
 					close(sock);
 					deallocateClient(sock);
-					std::cout << "Leaving client" << std::endl;
 				}
 				else {
 					onMessageReceived(sock, buf, bytesIn);
@@ -128,6 +112,10 @@ int TcpListener::run() {
 	}
 
 	return 0;
+}
+
+void TcpListener::stop(){
+	running = false;
 }
 
 void TcpListener::allocateClient(int client) {
