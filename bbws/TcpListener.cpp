@@ -51,7 +51,7 @@ int TcpListener::run() {
 	bool running = true;
 
 	while (running) {
-		std::cout << "[DEBUG:] Im HERE " << available << " out of " << MAX_CLIENTS << std::endl;
+		std::cout << "[DEBUG:] Available seats " << available << " out of " << MAX_CLIENTS << std::endl;
 		// Make a copy of the master file descriptor set, this is SUPER important because
 		// the call to select() is _DESTRUCTIVE_. The copy only contains the sockets that
 		// are accepting inbound connection requests OR messages. 
@@ -68,7 +68,6 @@ int TcpListener::run() {
 		// int socketCount = select(0, &copy, nullptr, nullptr, nullptr);
 		m_master[0].events = (available > 0) ? POLLIN : 0;
 		int socketCount = poll(m_master, MAX_CLIENTS, -1);
-		std::cout << "socketCount " << socketCount << std::endl;
 		// Is it an inbound communication?
 		if (m_master[0].revents == POLLIN) {
 			// Accept a new connection
@@ -88,7 +87,7 @@ int TcpListener::run() {
 		while (socketCount > 0) {
 
 			if(m_master[i].revents == POLLIN) {
-				std::cout << "Client wants something" << std::endl;
+				// std::cout << "Client wants something" << std::endl;
 				char buf[4096];
 				memset(buf, 0, 4096);
 				int sock = m_master[i].fd;
@@ -105,9 +104,9 @@ int TcpListener::run() {
 				else {
 					onMessageReceived(sock, buf, bytesIn);
 				}
+				socketCount--;
 			}
 			i++;
-			socketCount--;
 		}
 	}
 
@@ -142,7 +141,7 @@ void TcpListener::allocateClient(int client) {
 }
 
 void TcpListener::deallocateClient(int client) {
-	unsigned i = 1;
+	unsigned i = 1; // starts at 1, because internal listener socket is at 0
 	
 	while(m_master[i].fd != client) i++;
 	available++;
