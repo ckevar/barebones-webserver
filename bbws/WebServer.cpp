@@ -33,6 +33,7 @@ void WebServer::onMessageReceived(int clientSocket, const char* msg, int length)
 	}
 
 	// Open the document in the local file system
+	std::cout << htmlFile << std::endl;
 	std::ifstream f("wwwroot" + htmlFile);
 
 	// Check if it opened and if it did, grab the entire contents
