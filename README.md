@@ -1,9 +1,9 @@
 # barebones-webserver
-A bare bones web server written in C++
+A bare bones web server written in C++ (orignally writteng for windows)
 
-Based on the [forked repository](https://www.youtube.com/watch?v=YqEqjODUkWY&t=7s), but this WebServer is for Linux and uses [**poll()**](http://man7.org/linux/man-pages/man2/poll.2.html) instead of [**select()** ](http://man7.org/linux/man-pages/man2/select.2.html).
+Based on the [forked repository](https://www.youtube.com/watch?v=YqEqjODUkWY&t=7s); however, this WebServer has been modified for running on Linux (ubuntu) and uses [**poll()**](http://man7.org/linux/man-pages/man2/poll.2.html) instead of [**select()** ](http://man7.org/linux/man-pages/man2/select.2.html).
 
-Read updates:
+### Read updates:
 
-## UPDATE 1.0 - Thu Dec 19, 2019
+### UPDATE 1.0 - Thu Dec 19, 2019
 It's recommended to used it on Firefox (so far), because Chrome is continuing asking to the server even when user didnt ask for anything 
