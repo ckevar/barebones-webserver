@@ -1,6 +1,6 @@
-#pragma once
+#ifndef WEB_SERVER_H
+#define WEB_SERVER_H
 
-#pragma once
 #include "TcpListener.h"
 
 class WebServer : public TcpListener
@@ -21,3 +21,4 @@ protected:
 	// Handler for when a message is received from the client
 	virtual void onMessageReceived(int clientSocket, const char* msg, int length);
 };
+#endif

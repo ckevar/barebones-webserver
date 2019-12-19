@@ -1,8 +1,12 @@
-#pragma once
+#ifndef TCP_LISTENER_H
+#define TCP_LISTENER_H
 
-#include <WS2tcpip.h>
+#include <sys/socket.h>
+#include <poll.h>
+//#include <WS2tcpip.h>
 
-#pragma comment (lib, "ws2_32.lib")
+//#pragma comment (lib, "ws2_32.lib")
+#define MAX_CLIENTS 10
 
 class TcpListener
 {
@@ -35,10 +39,20 @@ protected:
 	// Broadcast a message from a client
 	void broadcastToClients(int sendingClient, const char* msg, int length);
 
+	// Allocate client in the client set
+	void allocateClient(int client);
+
+	// Deallocate client from the the client set
+	void deallocateClient(int clinet); 
+
 private:
 
-	const char*		m_ipAddress;	// IP Address server will run on
+	const char*		m_ipAddress;		// IP Address server will run on
 	int				m_port;			// Port # for the web service
 	int				m_socket;		// Internal FD for the listening socket
-	fd_set			m_master;		// Master file descriptor set
+	// fd_set			m_master;		// Master file descriptor set
+	struct pollfd	m_master[MAX_CLIENTS + 1];		// Master file descriptor set
+	int		available;
 };
+
+#endif
